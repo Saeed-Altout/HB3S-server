@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
-import { db } from "../lib/db";
 import { sendCommand } from "../utils/send-command";
+import { db } from "../lib/db";
 
 const router = express.Router();
 

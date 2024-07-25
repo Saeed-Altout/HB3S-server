@@ -2,18 +2,9 @@ import { SerialPort } from "serialport";
 import { ReadlineParser } from "@serialport/parser-readline";
 import { db } from "./lib/db";
 
-const portPath: string | undefined = process.env.SERIALPORT_PATH;
-const baudRate: number = Number(process.env.SERIALPORT_BAUD_RATE);
-
-if (!portPath || isNaN(baudRate)) {
-  throw new Error(
-    "Serial port path or baud rate is not defined correctly in environment variables."
-  );
-}
-
 const arduino = new SerialPort({
-  path: portPath,
-  baudRate: baudRate,
+  path: "COM18",
+  baudRate: 9600,
   autoOpen: false,
 });
 
@@ -23,8 +14,6 @@ interface Point {
   value: number;
   sessionId: number;
 }
-
-let points: Point[] = [];
 
 arduino.on("open", () => {
   console.log("Serial port opened");
@@ -42,13 +31,12 @@ arduino.on("open", () => {
       });
 
       if (session) {
-        const point = await db.point.create({
+        await db.point.create({
           data: {
-            value: glucoseValue,
             sessionId: session.id,
+            value: glucoseValue,
           },
         });
-        points.push(point);
       }
     } catch (error) {
       console.error("Error handling data:", (error as Error).message);
